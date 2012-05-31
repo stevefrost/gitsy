@@ -44,7 +44,7 @@ class Gitsy
 {
 	/**
 	 * GitHub API URI
-	 * 
+	 *
 	 * @var string
 	 */
 	protected static $github_api = 'https://api.github.com';
@@ -56,8 +56,26 @@ class Gitsy
 	*/
 
 	/**
+	 * API Helper: HEAD
+	 *
+	 * Can be issued against any resource to get just the HTTP header info.
+	 *
+	 * @param   string   $resource
+	 * @param   array    $parameters
+	 * @param   mixed    $auth
+	 * @param   array    $additional_options
+	 * @return  array
+	 */
+	public static function head($resource, array $parameters = array(), $auth = false, array $additional_options = array())
+	{
+		return static::api('HEAD', $resource, $parameters, $auth, $additional_options);
+	}
+
+	/**
 	 * API Helper: GET
-	 * 
+	 *
+	 * Used for retrieving resources.
+	 *
 	 * @param   string   $resource
 	 * @param   array    $parameters
 	 * @param   mixed    $auth
@@ -71,7 +89,10 @@ class Gitsy
 
 	/**
 	 * API Helper: POST
-	 * 
+	 *
+	 * Used for creating resources, or performing custom
+	 * actions (such as merging a pull request).
+	 *
 	 * @param   string   $resource
 	 * @param   array    $parameters
 	 * @param   mixed    $auth
@@ -85,7 +106,14 @@ class Gitsy
 
 	/**
 	 * API Helper: PATCH
-	 * 
+	 *
+	 * Used for updating resources with partial JSON data.
+	 * For instance, an Issue resource has title and body
+	 * attributes. A PATCH request may accept one or more
+	 * of the attributes to update the resource. PATCH is
+	 * a relatively new and uncommon HTTP verb, so resource
+	 * endpoints also accept POST requests.
+	 *
 	 * @param   string   $resource
 	 * @param   array    $parameters
 	 * @param   mixed    $auth
@@ -98,8 +126,28 @@ class Gitsy
 	}
 
 	/**
+	 * API Helper: PUT
+	 *
+	 * Used for replacing resources or collections.
+	 * For PUT requests with no body attribute, be sure
+	 * to set the Content-Length header to zero.
+	 *
+	 * @param   string   $resource
+	 * @param   array    $parameters
+	 * @param   mixed    $auth
+	 * @param   array    $additional_options
+	 * @return  array    Data
+	 */
+	public static function put($resource, array $parameters = array(), $auth = false, array $additional_options = array())
+	{
+		return static::api('PUT', $resource, $parameters, $auth, $additional_options);
+	}
+
+	/**
 	 * API Helper: DELETE
-	 * 
+	 *
+	 * Used for deleting resources.
+	 *
 	 * @param   string   $resource
 	 * @param   array    $parameters
 	 * @param   mixed    $auth
@@ -113,7 +161,7 @@ class Gitsy
 
 	/**
 	 * API Helper
-	 * 
+	 *
 	 * @param   string   $http_method
 	 * @param   string   $resource
 	 * @param   array    $parameters
@@ -144,9 +192,16 @@ class Gitsy
 			CURLOPT_CUSTOMREQUEST  => $http_method,
 		);
 
-		// Process http method
+		// Process http method. Notice we're skipping
+		// GET as it doesn't modify any options or headers
+		// from default.
 		switch ($http_method)
 		{
+			case 'HEAD':
+				$options[CURLOPT_POSTFIELDS] = $parameters;
+				$headers[]                   = 'X-HTTP-Method-Override: HEAD';
+				break;
+
 			case 'POST':
 				$options[CURLOPT_POST]       = true;
 				$options[CURLOPT_POSTFIELDS] = $parameters;
@@ -157,14 +212,14 @@ class Gitsy
 				$headers[]                   = 'X-HTTP-Method-Override: PATCH';
 				break;
 
-			case 'PATCH':
+			case 'PUT':
 				$options[CURLOPT_POSTFIELDS] = $parameters;
-				$headers[]                   = 'X-HTTP-Method-Override: PATCH';
+				$headers[]                   = 'X-HTTP-Method-Override: PUT';
 				break;
-			
-			// Default to GET request
-			default:
-				# code...
+
+			case 'DELETE':
+				$options[CURLOPT_POSTFIELDS] = $parameters;
+				$headers[]                   = 'X-HTTP-Method-Override: DELETE';
 				break;
 		}
 
@@ -263,15 +318,15 @@ class Gitsy
 
 	/**
 	 * Gets a user from the API
-	 * 
+	 *
 	 * With Auth:
-	 * 
+	 *
 	 *   GET /user
-	 * 
+	 *
 	 * Without Auth:
-	 * 
+	 *
 	 *   GET /users/:user
-	 * 
+	 *
 	 * @param   string     $username
 	 * @param   mixed      $auth
 	 * @return  Gitsy\User $user
@@ -288,11 +343,11 @@ class Gitsy
 
 	/**
 	 * Gets an organisation from the API
-	 * 
+	 *
 	 * With / Without Auth:
-	 * 
+	 *
 	 *   GET /orgs/:org
-	 * 
+	 *
 	 * @param   string    $org
 	 * @param   mixed     $auth
 	 * @return  Gitsy\Org $org_c
@@ -308,17 +363,17 @@ class Gitsy
 
 	/**
 	 * Shortcut for Gitsy::user('username')->repo('reponame');
-	 * 
+	 *
 	 * Note: You cannot use this method to access a repo
 	 *       owned by a team that belongs to an organisation.
 	 *       You need to go through Gitsy::org('orgname')
 	 *                                   ->team(123)
 	 *                                   ->repo('reponame');
-	 * 
+	 *
 	 * Usage:
-	 * 
+	 *
 	 * Gitsy::repo('username/reponame');
-	 * 
+	 *
 	 * @param   string     $key
 	 * @param   mixed      $auth
 	 * @return  Gitsy\Repo $repo
