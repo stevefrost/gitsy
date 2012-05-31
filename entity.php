@@ -150,7 +150,7 @@ abstract class Entity implements ArrayAccess
 	{
 		if ($this->auth === false)
 		{
-			throw new GitsyAuthException('Auth is required'.($caller ? ' for '.$caller : null));
+			throw new GitsyAuthException('Auth is required'.($caller ? " for [$caller]" : null));
 		}
 	}
 
