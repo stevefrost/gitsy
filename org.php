@@ -109,7 +109,7 @@ class Org extends Entity
 
 		foreach ($result as $team)
 		{
-			$team_c = Org_Team::forge($team, $this->auth);
+			$team_c = new Org_Team($team, $this->auth);
 			array_set($teams, array_get($team, 'id'), $team_c);
 		}
 
@@ -134,8 +134,7 @@ class Org extends Entity
 		$this->force_auth(__METHOD__);
 
 		$result = Gitsy::get('/teams/'.$id, array(), $this->auth);
-		$team   = Org_Team::forge($result, $this->auth);
-		return $team;
+		return new Org_Team($result, $this->auth);
 	}
 
 	/* ---------------------------------------------------------------------------
@@ -176,7 +175,7 @@ class Org extends Entity
 		 */
 		foreach ($result as $repo)
 		{
-			array_set($repos, array_get($repo, 'name'), Repo::forge($repo, $this->auth));
+			array_set($repos, array_get($repo, 'name'), new Repo($repo, $this->auth));
 		}
 
 		return $repos;
@@ -196,6 +195,6 @@ class Org extends Entity
 	 */
 	public function repo($name)
 	{
-		return Repo::forge(Gitsy::get('/repos/'.$this['login'].'/'.$name, array(), $this->auth));
+		return new Repo(Gitsy::get('/repos/'.$this['login'].'/'.$name, array(), $this->auth));
 	}
 }

@@ -63,9 +63,6 @@ abstract class Entity implements ArrayAccess
 
 		// Set auth
 		$auth and $this->auth = $auth;
-
-		// Post construct
-		$this->_construct();
 	}
 
 	/**

@@ -166,7 +166,7 @@ class User extends Entity
 
 		foreach ($result as $follower)
 		{
-			$followers[array_get($follower, 'login', false)] = static::forge($follower, $this->auth);
+			$followers[array_get($follower, 'login', false)] = new static($follower, $this->auth);
 		}
 
 		return $followers;
@@ -196,7 +196,7 @@ class User extends Entity
 
 		foreach ($result as $user)
 		{
-			$following[array_get($user, 'login', false)] = static::forge($user, $this->auth);
+			$following[array_get($user, 'login', false)] = new static($user, $this->auth);
 		}
 
 		return $following;
@@ -430,7 +430,7 @@ class User extends Entity
 		 */
 		foreach ($result as $repo)
 		{
-			array_set($repos, array_get($repo, 'name'), Repo::forge($repo, $this->auth));
+			array_set($repos, array_get($repo, 'name'), new Repo($repo, $this->auth));
 		}
 
 		return $repos;
@@ -455,7 +455,7 @@ class User extends Entity
 	 */
 	public function repo($name)
 	{
-		$repo = Repo::forge(Gitsy::get('/repos/'.$this['login'].'/'.$name, array(), $this->auth), $this->auth);
+		$repo = new Repo(Gitsy::get('/repos/'.$this['login'].'/'.$name, array(), $this->auth), $this->auth);
 		$repo->user = $this;
 
 		return $repo;
@@ -478,7 +478,7 @@ class User extends Entity
 		$this->force_auth(__METHOD__);
 		$result = Gitsy::post('/user/repos', $repo, $this->auth);		
 
-		$repo_o = Repo::forge($result, $this->auth);
+		$repo_o = new Repo($result, $this->auth);
 		$repo_o->user = $this;
 
 		return $repo_o;
@@ -525,7 +525,7 @@ class User extends Entity
 
 		$result = Gitsy::post('/repos/'.$repo.'/forks', $params, $this->auth);
 
-		$repo = Repo::forge($result, $this->auth);
+		$repo = new Repo($result, $this->auth);
 		$repo->user = $this;
 
 		return $repo;

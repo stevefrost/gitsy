@@ -104,7 +104,7 @@ class Repo extends Entity
 
 		foreach ($result as $user)
 		{
-			$contributors[array_get($user, 'login', false)] = User::forge($user, $this->auth);
+			$contributors[array_get($user, 'login', false)] = new User($user, $this->auth);
 		}
 
 		return $contributors;
@@ -146,7 +146,7 @@ class Repo extends Entity
 
 		foreach ($result as $team)
 		{
-			$teams[array_get($team, 'id', false)] = Org_Team::forge($team, $this->auth);
+			$teams[array_get($team, 'id', false)] = new Org_Team($team, $this->auth);
 		}
 
 		return $teams;
@@ -179,7 +179,7 @@ class Repo extends Entity
 		foreach ($result as $ref)
 		{
 			// Create a ref class
-			$ref_c = Git_Ref::forge($ref, $this->auth);
+			$ref_c = new Git_Ref($ref, $this->auth);
 			$ref_c->repo = $this;
 
 			// Ref is the key, e.g. refs/heads/master
@@ -206,7 +206,7 @@ class Repo extends Entity
 	public function git_ref($key)
 	{
 		$result = Gitsy::get('/repos/'.$this->login().'/'.$this['name'].'/git/'.$key, array(), $this->auth);
-		$ref    = Git_Ref::forge($result, $this->auth);
+		$ref    = new Git_Ref($result, $this->auth);
 		$ref->repo = $this;
 
 		return $ref;
@@ -229,7 +229,7 @@ class Repo extends Entity
 		$this->force_auth(__METHOD__);
 
 		$result = Gitsy::post('/repos'.$this->login().'/'.$this['name'].'/git/refs', $data, $this->auth);
-		$ref    = Git_Ref::forge($result, $this->auth);
+		$ref    = new Git_Ref($result, $this->auth);
 
 		return $ref;
 	}
@@ -254,7 +254,7 @@ class Repo extends Entity
 	public function git_commit($sha)
 	{
 		$result = Gitsy::get('/repos/'.$this->login().'/'.$this['name'].'/git/commits/'.$sha, array(), $this->auth);
-		$commit = Git_Commit::forge($result, $this->auth);
+		$commit = new Git_Commit($result, $this->auth);
 
 		return $commit;
 	}
@@ -277,8 +277,7 @@ class Repo extends Entity
 
 		$result = Gitsy::post('/repos/'.$this->login().'/'.$this['name'].'/git/commits', $data, $this->auth);
 
-		$commit = Git_Commit::forge($result, $this->auth);
-		return $commit;
+		return new Git_Commit($result, $this->auth);
 	}
 
 	/* ---------------------------------------------------------------------------
@@ -303,7 +302,7 @@ class Repo extends Entity
 
 		$result = Gitsy::post('/repos/'.$this->login().'/'.$this['name'].'/git/blobs', $blob, $this->auth);
 
-		return Git_Blob::forge($result);
+		return new Git_Blob($result);
 	}
 
 	/* ---------------------------------------------------------------------------
@@ -368,8 +367,7 @@ class Repo extends Entity
 		$result = Gitsy::post('/repos/'.$this->login().'/'.$this['name'].'/git/trees', $tree, $this->auth);
 
 		// Create a new tere object
-		$tree = Git_Tree::forge($result, $this->auth);
-		return $tree;
+		return new Git_Tree($result, $this->auth);
 	}
 
 	/* ---------------------------------------------------------------------------
@@ -395,7 +393,7 @@ class Repo extends Entity
 
 		foreach ($result as $pull)
 		{
-			$pull_c = Pull::forge($pull);
+			$pull_c = new Pull($pull);
 			$pull_c->repo = $this;
 			$pulls[] = $pull;
 		}
@@ -457,7 +455,6 @@ class Repo extends Entity
 			'base'  => $base,
 		), $this->auth);
 
-		$repo = Pull::forge($result, $this->auth);
-		return $repo;
+		return new Pull($result, $this->auth);
 	}
 }

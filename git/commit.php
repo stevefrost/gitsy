@@ -46,7 +46,6 @@ class Git_Commit extends Entity
 
 		$result = Gitsy::post('/repos/'.$user.'/'.$repo.'/git/commits', $data, $auth);
 
-		$commit = static::forge($result, $auth);
-		return $commit;
+		return new static($result, $auth);
 	}
 }

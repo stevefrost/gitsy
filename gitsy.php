@@ -337,8 +337,7 @@ class Gitsy
 	{
 		$result = $auth === false ? static::get('/users/'.$username) : static::get('/user', array(), $auth);
 		
-		$user = User::forge($result, $auth);
-		return $user;
+		return new User($result, $auth);
 	}
 
 	/**
@@ -357,8 +356,7 @@ class Gitsy
 	{
 		$result = static::get('/orgs/'.$org);
 
-		$org = Org::forge($result, $auth);
-		return $org;
+		return new Org($result, $auth);
 	}
 
 	/**

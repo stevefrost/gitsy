@@ -88,7 +88,6 @@ class Git_Tree extends Entity
 		$result = Gitsy::post('/repos/'.$user.'/'.$repo.'/git/trees', $tree, $auth);
 
 		// Create a new tree object
-		$tree = static::forge($result, $auth);
-		return $tree;
+		return new static($result, $auth);
 	}
 }

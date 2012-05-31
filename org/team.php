@@ -45,7 +45,7 @@ class Org_Team extends Entity
 
 		foreach ($result as $repo)
 		{
-			array_set($repos, array_get($repo, 'name'), Repo::forge($repo, $this->auth));
+			array_set($repos, array_get($repo, 'name'), new Repo($repo, $this->auth));
 		}
 
 		return $repos;
