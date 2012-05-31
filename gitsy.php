@@ -188,7 +188,6 @@ class Gitsy
 			CURLOPT_TIMEOUT        => 30,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FOLLOWLOCATION => false,
-			CURLOPT_HTTPHEADER     => $headers,
 			CURLOPT_CUSTOMREQUEST  => $http_method,
 		);
 
@@ -230,7 +229,7 @@ class Gitsy
 		}
 		elseif (is_array($auth))
 		{
-			$options[CURLOPT_HTTPAUTH] = CURLAUTH_ANY;
+			$options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
 			$options[CURLOPT_USERPWD]  = $auth[0].':'.$auth[1];
 		}
 
