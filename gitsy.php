@@ -139,7 +139,6 @@ class Gitsy
 		$options = array(
 			CURLOPT_TIMEOUT        => 30,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_FAILONERROR    => true,
 			CURLOPT_FOLLOWLOCATION => false,
 			CURLOPT_HTTPHEADER     => $headers,
 			CURLOPT_CUSTOMREQUEST  => $http_method,
@@ -206,47 +205,54 @@ class Gitsy
 		curl_setopt_array($ch, $options);
 
 		// Look at what GitHub sends back
-		$body = curl_exec($ch);
-		$info = curl_getinfo($ch);
+		$body      = curl_exec($ch);
+		$info      = curl_getinfo($ch);
+		$http_code = $info['http_code'];
 
-		/**
-		 * Format an exception in the below format:
-		 *
-		 * [Error Message] ([HTTP Method] [Resource] [Auth] [Parameters])
-		 *
-		 * For example:
-		 *
-		 * The requested URL returned error: 401
-		 * (GET /sdf foo@bar.com:password123 {"param1":"value1"})
-		 */
-		if ($body === false)
+		// If the HTTP code is in 400-500, throw an exception. We might have
+		// got a message back from the API, if so, put that in the exception
+		// as well.
+		if ($http_code >= 400)
 		{
-			// Prepeare and throw an Exception
-			$message  = curl_error($ch).' (';
-			$message .= "$http_method $resource";
+			$message = "HTTP Error [$http_code]";
+
+			try
+			{
+				$body     = JSON::decode($body, true);
+				$message .= ' '.$body['message'];
+			}
+			catch (\Exception $e)
+			{
+				$message .= ' Unkown Error';
+			}
+
+			$message .= " ($http_method $resource)";
 
 			if (is_string($auth))
 			{
-				$message .= " $auth";
+				$message .= " (Auth - $auth)";
 			}
 			elseif (is_array($auth))
 			{
-				$message .= " {$auth[0]}:{$auth[1]}";
+				$message .= " (Auth - {$auth[0]}:{$auth[1]})";
 			}
 
-			$message .= " $parameters)";
-
-			throw new GitsyRequestException($message, $info['http_code']);
+			$message .= " (Params - $parameters)";
+			
+			/**
+			 * Format an exception in the below format:
+			 *
+			 * [cURL Error Message] [GitHub Error] ([HTTP Method] [Resource] [Auth] [Parameters])
+			 *
+			 * For example:
+			 *
+			 * The requested URL returned error: 401
+			 * (GET /sdf foo@bar.com:password123 {"param1":"value1"})
+			 */
+			throw new GitsyRequestException($message, $http_code);
 		}
 
-		try
-		{
-			return JSON::decode($body, true);
-		}
-		catch (JSONException $e)
-		{
-			echo 'sdf';
-		}
+		return JSON::decode($body, true);
 	}
 
 	/*
