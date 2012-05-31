@@ -42,6 +42,7 @@ class GitsyNotFoundException extends Exception {}
  */
 class Gitsy
 {
+
 	/**
 	 * GitHub API URI
 	 *
@@ -384,4 +385,5 @@ class Gitsy
 		$repo  = $user->repo($parts[1]);
 		return $repo;
 	}
+
 }
