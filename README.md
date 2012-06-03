@@ -1,6 +1,4 @@
-#A simple, easy tou se GitHub V3 API package built for FuelPHP
-
-Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus.
+#A simple, easy to use GitHub V3 API package built for Laravel
 
 ## Method List Legend
 
